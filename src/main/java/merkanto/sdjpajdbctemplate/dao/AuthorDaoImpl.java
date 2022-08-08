@@ -5,6 +5,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
+/**
+ * Created by jt on 8/22/21.
+ */
 @Component
 public class AuthorDaoImpl implements AuthorDao {
 
@@ -16,7 +19,10 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public Author getById(Long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM author where id = ?", getRowMapper(), id);
+        String sql = "select author.id as id, first_name, last_name, book.id as book_id, book.isbn, book.publisher, book.title from author\n" +
+                "left outer join book on author.id = book.author_id where author.id = ?";
+
+        return jdbcTemplate.query(sql, new AuthorExtractor(), id);
     }
 
     @Override
@@ -40,14 +46,14 @@ public class AuthorDaoImpl implements AuthorDao {
     public Author updateAuthor(Author author) {
 
         jdbcTemplate.update("UPDATE author SET first_name = ?, last_name = ? WHERE id = ?",
-                                author.getFirstName(), author.getLastName(), author.getId());
+                author.getFirstName(), author.getLastName(), author.getId());
+
         return this.getById(author.getId());
     }
 
     @Override
     public void deleteAuthorById(Long id) {
         jdbcTemplate.update("DELETE FROM author WHERE id = ?", id);
-
     }
 
     private RowMapper<Author> getRowMapper(){
