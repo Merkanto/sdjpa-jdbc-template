@@ -1,13 +1,22 @@
 package merkanto.sdjpajdbctemplate.dao;
 
 import merkanto.sdjpajdbctemplate.domain.Author;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AuthorDaoImpl implements AuthorDao {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    public AuthorDaoImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @Override
     public Author getById(Long id) {
-        return null;
+        return jdbcTemplate.queryForObject("SELECT * FROM author where id = ?", getRowMapper(), id);
     }
 
     @Override
@@ -28,5 +37,9 @@ public class AuthorDaoImpl implements AuthorDao {
     @Override
     public void deleteAuthorById(Long id) {
 
+    }
+
+    private RowMapper<Author> getRowMapper() {
+        return new AuthorMapper();
     }
 }
